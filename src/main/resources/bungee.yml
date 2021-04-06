@@ -1,0 +1,3 @@
+name: AuthPin
+version: ${project.version}
+main: com.vanquil.authpin.AuthPin
