@@ -2,11 +2,12 @@ package com.vanquil.authpin;
 
 import com.google.common.io.ByteStreams;
 import com.vanquil.authpin.database.DatabaseManager;
+import com.vanquil.authpin.database.PinDatabase;
+import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
-
 import java.io.*;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -18,7 +19,6 @@ public final class AuthPin extends Plugin {
 
     @Override
     public void onEnable() {
-        // Plugin startup logic
 
         saveDefaultConfig();
 
@@ -32,8 +32,18 @@ public final class AuthPin extends Plugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
 
+        // logout all players logged in already
+        for(ProxiedPlayer player : getProxy().getPlayers()) {
+            if(getConfig().getStringList("Staffs").contains(player.getName())) {
+                PinDatabase pinDatabase = new PinDatabase(player);
+                if(pinDatabase.isLoggedIn())
+                    pinDatabase.logout();
+                pinDatabase = null;
+            }
+        }
+
+        // disconnect database
         DatabaseManager.disconnect();
     }
 
